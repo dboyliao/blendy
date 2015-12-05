@@ -32,7 +32,7 @@ scene_params = {
 
 frame_params = {
     1: {"value": 0.314},
-    10: {"value":0.314, "rot_reset": Fasle},
+    10: {"value":0.314, "rot_reset": False},
     20: {"value":0, "rot_reset": True},
     30: {"value": 0.15},
     40: {"value": 0},
