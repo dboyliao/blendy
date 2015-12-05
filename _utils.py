@@ -1,19 +1,26 @@
 # -*- coding: utf-8 -*-
 
-from .exceptions import SpecError, NotFoundError
+from .exceptions import NotFoundError
 from functools import partial, wraps
+from ._meta import InterfaceParamChecker
 import bpy
 
-def frame_params_checker(frame_params):
+class ArmatureParamChecker(InterfaceParamChecker):
+    """
+    Checker for armature animation parameter.
+    """
 
-    for frame_ind, params in frame_params.items():
+    def check(self, params):
 
-        if not isinstance(frame_ind, int):
-            raise SpecError("The key should be integer.")
+        if not isinstance(params, dict):
+            return False
 
-        for key in ["rot_reset", "loc_reset", "scale_reset"]:
-            if not isinstance(params.get(key, True), bool):
-                raise SpecError("The value of key {} should of type bool.".format(key))
+        for ind, params in params.items():
+            if not isinstance(ind, int) or not "value" in params.keys():
+                return False
+        
+        return True
+
 
 class BLContext(object):
 
@@ -27,7 +34,7 @@ class BLContext(object):
 
     def __init__(self, object_name, mode_name):
         self.__old_mode = bpy.context.mode
-        self.__target_mode = mode_name
+        self.__target_mode = mode_name.upper()
         obj = bpy.data.objects.get(object_name, None)
 
         if obj is None:

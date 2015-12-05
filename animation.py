@@ -2,9 +2,9 @@
 
 import os, bpy
 import numpy as np
-from ._utils import frame_params_checker, BLContext
+from ._utils import BLContext, ArmatureParamChecker
 from ._meta import InterfaceAnimator
-from .exceptions import NotFoundError
+from .exceptions import NotFoundError, SpecError
 
 _ops = {
     "rotate": bpy.ops.transform.rotate,
@@ -33,12 +33,48 @@ class ArmatureAnimator(InterfaceAnimator):
         if armature is None:
             raise NotFoundError("Armature is not found: {}".format(armature_name))
         
-        self.armature = armature
+        self.__armature = armature
 
     def animate(self, frame_params, op_type, bone_name = None, **kwargs):
         
-        with BLContext(self.armature.name, "POSE") as context:
+        with BLContext(self.armature.name, "pose") as context:
+            scene = context.scene
+            operation = _ops[op_type]
+            param_checker = ArmatureParamChecker()
+
+            # Deselect all objects.
+            bpy.ops.pose.select_all(action = "DESELECT")
+
             armature_data = self.armature.data
+            bones = armature_data.bones
+
+            if bone_name is None:
+                bpy.ops.pose.select_all(action = "SELECT")
+            else:
+                bone = bones.get(bone_name, None)
+                if bone is None:
+                    raise NotFoundError("Bone is not found: {}".format(bone_name))
+                bone.select = True
+            
+            # Checking the format of frame_params
+            if param_checker.check(frame_params):
+
+                for frame_ind, params in frame_params.items():
+                    scene.frame_set(frame = frame_ind)
+
+                    if params.get("rot_reset", True):
+                        bpy.ops.pose.rot_clear()
+                    if params.get("loc_reset", True):
+                        bpy.ops.pose.loc_clear()
+                    if params.get("scale_reset", True):
+                        bpy.ops.pose.scale_clear()
+
+                    operation(value = params["value"], **kwargs)
+                    bpy.ops.anim.keyframe_insert_menu(type = params.get("anim_type", "LocRotScale"))
+
+                bpy.ops.pose.select_all(action = "DESELECT")
+            else:
+                raise SpecError("the spec of frame_params is not correct.")
 
     @property
     def armature(self):
@@ -46,10 +82,12 @@ class ArmatureAnimator(InterfaceAnimator):
 
     @armature.setter
     def armature(self, new_armature):
-        if new_armature.type != "ARMATURE":
-            raise TypeError("Can not set attribute to non armatrue object.")
-        
-        self.__armature = new_armature
+        try:
+            if new_armature.type != "ARMATURE":
+                raise TypeError("Can not set attribute to non armatrue object.")
+                self.__armature = new_armature
+        except AttributeError as e:
+            print(e)
 
     def clear(self):
         """
