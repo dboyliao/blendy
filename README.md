@@ -55,3 +55,8 @@ animator.animate(frame_params, "rotate", "jaw", axis = (1, 0, 0))
 3. run `git clone https://github.com/spe3d/spe3d_bl_tools.git`
 4. Now it should be available in the python console in Blender.
 
+## To Do List
+
+1. MeshAnimator: animator for mesh object.
+2. AudioMaker: helper for adding audio to the animation.
+
