@@ -93,10 +93,14 @@ class ArmatureAnimator(InterfaceAnimator):
         """
         Clear current animation.
         """
-        
-        BLContext.TOGGLE_FUNC[bpy.context.mode]()
 
-        bpy.ops.object.select_by_type(type = "ARMATURE")
+        # Switch back to object mode and deselect all objects.
+        BLContext.TOGGLE_FUNC[bpy.context.mode]()
+        bpy.ops.objects.select_all(action = "DESELECT")
+
+        # select current armature.
+        self.armature.select = True 
+        # clear animation
         bpy.context.active_object.animation_data_clear()
 
 def MeshAnimator(InterfaceAnimator):
