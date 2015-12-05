@@ -18,7 +18,7 @@ scene_params = {
     "fps": 30,
     "fps_base": 1,
     "frame_start": 1,
-    "frame_end": 300
+    "frame_end": 90
 }
 
 # This simple animation is setup as following:
