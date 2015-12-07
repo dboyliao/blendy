@@ -7,7 +7,7 @@ This python module is not a standard addon for Blender. However, this module is 
 Here is a simple sample snippet of this module:
 
 ```{python}
-from spe3d_bl_tools.animation import Animator
+from spe3d_bl_tools.animation import ArmatureAnimator
 
 # the scene parameters for setting up a scene with 
 #    fame per second: 30
@@ -15,10 +15,15 @@ from spe3d_bl_tools.animation import Animator
 #    frame start: 1
 #    frame end: 90   ---> a 3 seconds long animation.
 scene_params = {
-    "fps": 30,
-    "fps_base": 1,
     "frame_start": 1,
     "frame_end": 90
+}
+
+# parameters for animation rendering.
+
+render_params = {
+    "fps": 30,
+    "fps_base": 1
 }
 
 # This simple animation is setup as following:
@@ -43,8 +48,22 @@ frame_params = {
     90: {"value": 0.15}
 }
 
-animator = Animator("Armature", scene_params)
+animator = ArmatureAnimator("Armature", scene_params, render_params)
 animator.animate(frame_params, "rotate", "jaw", axis = (1, 0, 0))
+```
+
+Add audio to animation is easy:
+
+```{python}
+from spe3d_bl_tools.animation import AudioManager
+
+audio_manager = AudioManager()
+audio_manager.add_audio("path/to/your/auio_file",
+                      channel = 1,
+                      frame_start = 1,
+                      relative_path = True)
+
+# audio_manager.clear()  # clear all audio.
 ```
 
 ## How to Make It Work in Blender?
@@ -54,9 +73,4 @@ animator.animate(frame_params, "rotate", "jaw", axis = (1, 0, 0))
 2. Change working directory to that folder.
 3. run `git clone https://github.com/spe3d/spe3d_bl_tools.git`
 4. Now it should be available in the python console in Blender.
-
-## To Do List
-
-1. MeshAnimator: animator for mesh object.
-2. AudioMaker: helper for adding audio to the animation.
 

@@ -112,30 +112,48 @@ class ArmatureAnimator(InterfaceAnimator):
         
     def clear(self):
         """
-        Clear current animation.
+        Clear current armature's animation.
         """
 
         self.armature.animation_data_clear()
 
-class AudioMaker(object):
+class AudioManager(object):
 
-    def add_audio(self, fpath):
+    def add_audio(self, fpath, **kwargs):
+        """
+        Add audio.
 
-        abs_fpath = os.path.abspath(fpath)
+        `params`:
+            `fpath` <string>: path to the audio file to be added.
+            `kwargs`: keyword arguement for `bpy.ops.sequencer.sound_strip_add` 
+                      except `filepath` and files. 
+        """
+
         old_type = bpy.context.area.type
         bpy.context.area.type = "SEQUENCE_EDITOR"
 
-        bpy.ops.sequencer.sound_strip_add(filepath = abs_fpath, 
-                                          files = [{"name": os.path.basename(abs_fpath)}],
-                                          relative_path = False,
-                                          frame_start = 1, 
-                                          channel = 1)
+        bpy.ops.sequencer.sound_strip_add(filepath = fpath, 
+                                          files = [{"name": os.path.basename(fpath)}],
+                                          **kwargs)
         bpy.context.area.type = old_type
 
-    def clear_audio(self):
+    def clear(self, audio_names = None):
+        """
+        Clear audio.
 
-        if len(bpy.context.sequences) > 0:
-            bpy.ops.sequencer.select_all(action = "SELECT")
-            bpy.ops.sequencer.delete()
+        `params`:
+            `audio_names` <list>: list of names of audio to be removed. If it
+                                  is None, all audio will be removed.
+        """
 
+        if audio_names is None:
+
+            if len(bpy.context.sequences) > 0:
+                bpy.ops.sequencer.select_all(action = "SELECT")
+                bpy.ops.sequencer.delete()
+        else:
+            for audio_name in audio_names:
+                sound_obj = bpy.context.scene.sequence_editor.sequences_all.get(audio_name, None)
+                if sound_obj is not None:
+                    bpy.context.scene.sequence_editor.sequences.remove(sound_obj)
 
