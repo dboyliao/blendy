@@ -5,6 +5,7 @@ import numpy as np
 from ._utils import BLContext, ArmatureParamChecker
 from ._meta import InterfaceAnimator
 from .exceptions import NotFoundError, SpecError
+from bpy.types import Object as BlenderObject
 
 _ops = {
     "rotate": bpy.ops.transform.rotate,
@@ -12,22 +13,22 @@ _ops = {
     "scale": bpy.ops.transform.resize
 }
 
+_default_scene_params = {
+    "frame_start": 1,
+    "frame_end": 90
+}
+
+_default_render_params = {
+    "fps": 30,
+    "fps_base": 1
+}
+
 class ArmatureAnimator(InterfaceAnimator):
 
-    def __init__(self, armature_name, scene_params = None):
-        scene = bpy.context.scene
-
-        if scene_params is None:
-            scene_params = {}
-            scene_params["fps"] = 30
-            scene_params["fps_base"] = 1
-            scene_params["frame_start"] = 1
-            scene_params["frame_end"] = 90
-
-        scene.render.fps = scene_params["fps"]
-        scene.render.fps_base = scene_params["fps_base"]
-        scene.frame_start = scene_params["frame_start"]
-        scene.frame_end = scene_params["frame_end"]
+    def __init__(self, armature_name, scene_params = None, render_params = None):
+        
+        # Setup the scene and the render parameters.
+        self.setup(scene_params, render_params)
 
         armature = bpy.data.objects.get(armature_name, None)
         if armature is None:
@@ -35,7 +36,26 @@ class ArmatureAnimator(InterfaceAnimator):
         
         self.__armature = armature
 
-    def animate(self, frame_params, op_type, bone_name = None, **kwargs):
+    def setup(self, scene_params, render_params):
+
+        scene = bpy.context.scene
+
+        # Setup default scene params if there is none.
+        if scene_params is None:
+            scene_params = _default_scene_params
+
+        # Setup default render params if there is none.
+        if render_params is None:
+            render_params = _default_render_params
+
+        for attr_name, value in scene_params.items():
+            setattr(scene, attr_name, value)
+
+        for attr_name, value in render_params.items():
+            setattr(scene.render, attr_name, value)
+
+
+    def animate(self, frame_params, op_type, bone_name = None, **op_kwargs):
         
         with BLContext(self.armature.name, "pose") as context:
             scene = context.scene
@@ -69,7 +89,7 @@ class ArmatureAnimator(InterfaceAnimator):
                     if params.get("scale_reset", True):
                         bpy.ops.pose.scale_clear()
 
-                    operation(value = params["value"], **kwargs)
+                    operation(value = params["value"], **op_kwargs)
                     bpy.ops.anim.keyframe_insert_menu(type = params.get("anim_type", "LocRotScale"))
 
                 bpy.ops.pose.select_all(action = "DESELECT")
@@ -82,39 +102,35 @@ class ArmatureAnimator(InterfaceAnimator):
 
     @armature.setter
     def armature(self, new_armature):
-        try:
-            if new_armature.type != "ARMATURE":
-                raise TypeError("Can not set attribute to non armatrue object.")
-                self.__armature = new_armature
-        except AttributeError as e:
-            print(e)
+        if not isinstance(new_armature, BlenderObject):
+            raise TypeError("This attribute can be set only as object with type {}.".format(BlenderObject))
 
+        if new_armature.type != "ARMATURE":
+            raise TypeError("Can not set attribute to non armatrue object.")
+
+        self.__armature = new_armature
+        
     def clear(self):
         """
         Clear current animation.
         """
 
-        # Switch back to object mode and deselect all objects.
-        BLContext.TOGGLE_FUNC[bpy.context.mode]()
-        bpy.ops.objects.select_all(action = "DESELECT")
-
-        # select current armature.
-        self.armature.select = True 
-        # clear animation
-        bpy.context.active_object.animation_data_clear()
-
-def MeshAnimator(InterfaceAnimator):
-
-    def animate(self, frame_params, op_type, bone_name, **kwargs):
-        pass
-    
-    def clear(self):
-        pass
+        self.armature.animation_data_clear()
 
 class AudioMaker(object):
 
-    def add_audio(self, fname):
-        pass
+    def add_audio(self, fpath):
+
+        abs_fpath = os.path.abspath(fpath)
+        old_type = bpy.context.area.type
+        bpy.context.area.type = "SEQUENCE_EDITOR"
+
+        bpy.ops.sequencer.sound_strip_add(filepath = abs_fpath, 
+                                          files = [{"name": os.path.basename(abs_fpath)}],
+                                          relative_path = False,
+                                          frame_start = 1, 
+                                          channel = 1)
+        bpy.context.area.type = old_type
 
     def clear_audio(self):
 

@@ -12,6 +12,10 @@ class InterfaceAnimator(object, metaclass = ABCMeta):
     def clear(self):
         pass
 
+    @abstractmethod
+    def setup(self, scene_params, render_params):
+        pass
+
 class InterfaceParamChecker(object, metaclass = ABCMeta):
 
     @abstractmethod

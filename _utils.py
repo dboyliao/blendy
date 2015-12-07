@@ -15,8 +15,11 @@ class ArmatureParamChecker(InterfaceParamChecker):
         if not isinstance(params, dict):
             return False
 
-        for ind, params in params.items():
-            if not isinstance(ind, int) or not "value" in params.keys():
+        for ind, param in params.items():
+            if not isinstance(param, dict):
+                return False
+            
+            if not isinstance(ind, int) or not "value" in param.keys():
                 return False
         
         return True

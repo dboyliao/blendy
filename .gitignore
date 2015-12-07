@@ -1,0 +1,8 @@
+## Mac ##
+.DS_Store
+
+## python ##
+__pycache__
+
+## Blender ##
+*.blend[1-9]
