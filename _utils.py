@@ -55,6 +55,7 @@ class BLContext(object):
         bpy.ops.object.select_all(action = "DESELECT") # deselect all objects
         bpy.context.scene.objects.active = self.__object
         self.__object.select = True
+        self.__object.hide = False
 
         # return if the target mode is object mode.(already is)
         if self.__target_mode == "OBJECT":

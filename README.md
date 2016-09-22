@@ -1,8 +1,8 @@
-# Blendy Tools: Make blender handy again!
+# Blendy: tools making blender handy again!
 
 This python module is **not** a standard addon for Blender. 
 
-However, this module is designed for programmers do some simple stuff using python with ease in `blender`, such as setting up the keyframes for animation quickly or basic context management.
+However, this module is designed for programmers to do some simple stuff using python with ease in `blender`, such as setting up the keyframes for animation quickly or basic context management.
 
 ## Basic Usage
 
