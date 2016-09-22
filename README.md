@@ -1,13 +1,16 @@
-# Spe3d Inc. - Blender Tools for Animation
+# Blendy Tools: Make blender handy again!
 
-This python module is not a standard addon for Blender. However, this module is designed for programmers to setup the keyframes for animation quickly and easily using python.
+This python module is **not** a standard addon for Blender. 
+
+However, this module is designed for programmers do some simple stuff using python with ease in `blender`, such as setting up the keyframes for animation quickly or basic context management.
 
 ## Basic Usage
 
 Here is a simple sample snippet of this module:
 
 ```{python}
-from spe3d_bl_tools.animation import ArmatureAnimator
+# Basic animation
+from blendy.animation import ArmatureAnimator
 
 # the scene parameters for setting up a scene with 
 #    fame per second: 30
@@ -55,7 +58,8 @@ animator.animate(frame_params, "rotate", "jaw", axis = (1, 0, 0))
 Add audio to animation is easy:
 
 ```{python}
-from spe3d_bl_tools.animation import AudioManager
+# audio editing
+from blendy.animation import AudioManager
 
 audio_manager = AudioManager()
 audio_manager.add_audio("path/to/your/auio_file",
@@ -66,11 +70,26 @@ audio_manager.add_audio("path/to/your/auio_file",
 # audio_manager.clear()  # clear all audio.
 ```
 
+Or you can use a handy context manager, `BLContext`, to do whatever you want
+
+```{python}
+import bpy
+import bmesh
+from blendy.utils import BLContext
+
+with BLContext("object_name", "EDIT_MESH") as context:
+    # Now the object with name as "object_name" has been selected and toggled into edit mesh mode.
+    my_object = context.scene.objects.active
+    mesh = bmesh.from_edit_mesh(my_object.data)
+    # do whatever you want here...
+```
+
 ## How to Make It Work in Blender?
 
 1. Find the `site-packages` folder of the python interpretor bundled with your Blender.
-    - For me, it is `/Applications/Blender/blender.app/Contents/Resources/2.76/python/lib/python3.4/site-packages`
+    - For me, it is `/Applications/Blender/blender.app/Contents/Resources/2.77/python/lib/python3.5/site-packages`
+    - Or you can run `import numpy as np; print(np.__file__)` in the python console in `blender` to see where it is.
 2. Change working directory to that folder.
-3. run `git clone https://github.com/spe3d/spe3d_bl_tools.git`
-4. Now it should be available in the python console in Blender.
+3. run `git clone https://github.com/dboyliao/blendy`
+4. Now it should be available in the python console in `blender`.
 

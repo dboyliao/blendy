@@ -18,10 +18,10 @@ class ArmatureParamChecker(InterfaceParamChecker):
         for ind, param in params.items():
             if not isinstance(param, dict):
                 return False
-            
+
             if not isinstance(ind, int) or not "value" in param.keys():
                 return False
-        
+
         return True
 
 
@@ -42,7 +42,7 @@ class BLContext(object):
 
         if obj is None:
             raise NotFoundError("object not found: {}".format(object_name))
-        
+
         self.__object = obj
 
     def __enter__(self):
