@@ -8,7 +8,7 @@ However, this module is designed for programmers to do some simple stuff using p
 
 Here is a simple sample snippet of this module:
 
-```{python}
+```python
 # Basic animation
 from blendy.animation import ArmatureAnimator
 
@@ -57,7 +57,7 @@ animator.animate(frame_params, "rotate", "jaw", axis = (1, 0, 0))
 
 Add audio to animation is easy:
 
-```{python}
+```python
 # audio editing
 from blendy.animation import AudioManager
 
@@ -72,7 +72,7 @@ audio_manager.add_audio("path/to/your/auio_file",
 
 Or you can use a handy context manager, `BLContext`, to do whatever you want
 
-```{python}
+```python
 import bpy
 import bmesh
 from blendy.utils import BLContext
